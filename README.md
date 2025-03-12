@@ -7,7 +7,7 @@ Proje Kategorisi:
 Eğitim Teknolojileri
 
 Referans Uygulama:
-quizlet.com, wordwall.net, Duolingo, Ulangi 
+quizlet, wordwall, Duolingo, Ulangi, wordup, etkilipratikingilizce
 
 Uygulama Adresi:
 eng4alll.com 
@@ -16,5 +16,6 @@ Grup Adı:
 Eng4All Team
 
 Proje ekibi: Muhammet Sanlı, Cengiz Bahadır Kaya, Umut Furkan Bayram, Alperen Demirtaş
-[1. gereksinim analizi](gereksinimAnalizleri.md)
 
+
+[1. gereksinim analizi](gereksinimAnalizleri.md) 
