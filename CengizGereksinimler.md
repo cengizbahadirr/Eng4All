@@ -6,6 +6,6 @@
 
 16.Haftalık leaderbord: En yüksek puanı alan insanlar leaderboard'da üstlerde görünür. Böylelikle kullanıcılar arasında rekabet yaratarak uygulamanın daha çok kullanımı amaçlanır.
 
-17.Geri bildirim ve site puanlama: Uygulamanın gelişimi için kullanıcının geri bildirim bırakıp puanlama yapabileceği bir alan.
+17.Geribildirim ve site puanlama: Uygulamanın gelişimi için kullanıcının geri bildirim bırakıp puanlama yapabileceği bir alan.
 
 18.Kelimeleri sesli dinleme desteği: Kullanıcı istediği kelimenin telaffuzunu dinleyebilir.
