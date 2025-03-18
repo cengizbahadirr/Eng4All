@@ -4,7 +4,7 @@
 
 3.Kullanıcı seviye tespiti: Yapılan test sonucu kullanıcının İngilizce seviyesi belirlenir. (CEFR seviyesine göre.)
 
-4.Arama Çubuğu: Kullanıcı arama yaparak kelimelerin İngilizce veya Türkçe karşılıklarını görüntüler.
+4.Arama çubuğu: Kullanıcı arama yaparak kelimelerin İngilizce veya Türkçe karşılıklarını görüntüler.
 
 5.Kelime ve gramer pratiği için birbirinden ayrı, özel çalışma alanları sunma: Kullanıcı isteğe bağlı olarak kelime çalışma sayfasına veya gramer çalışma sayfasına yönlendirilir.
 
