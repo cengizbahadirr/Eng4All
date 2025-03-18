@@ -30,7 +30,7 @@
 
 16.Haftalık leaderbord.
 
-17.Geri bildirim ve site puanlama.
+17.Geribildirim ve site puanlama.
 
 18.Kelimeleri sesli dinleme desteği.
 
@@ -40,7 +40,7 @@
 
 21.Kelime tekrar listesi.
 
-22.Temel dil bilgisi kuralları öğretimi.
+22.Temel dilbilgisi kuralları öğretimi.
 
 23.Rastgele kelime getirme.
 
