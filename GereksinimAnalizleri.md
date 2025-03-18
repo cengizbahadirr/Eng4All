@@ -12,7 +12,7 @@
 
 7.Kelimeleri farklı bağlamlara (örneğin, iş, akademik, resmi) göre sınıflandırma.
 
-8.İlerleme takibi kullanıcının doğru yanlış işaretleme kontrolü kayıt etme.
+8.İlerleme takibi.
 
 9.Kullanıcı profili oluşturma.
 
