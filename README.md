@@ -15,7 +15,7 @@ eng4all.co
 Grup Adı:
 Eng4All Team
 
-Proje ekibi: Muhammet Sanlı, Cengiz Bahadır Kaya, Umut Furkan Bayram, Alperen Demirtaş
+Proje Ekibi: Muhammet Sanlı, Cengiz Bahadır Kaya, Umut Furkan Bayram, Alperen Demirtaş
 
 
 [1. Gereksinim Analizi](gereksinimAnalizleri.md) 
