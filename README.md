@@ -10,7 +10,7 @@ Referans Uygulama:
 quizlet, wordwall, Duolingo, Ulangi, wordup, etkilipratikingilizce
 
 Uygulama Adresi:
-eng4alll.com 
+eng4all.co
 
 Grup Adı:
 Eng4All Team
@@ -18,4 +18,4 @@ Eng4All Team
 Proje ekibi: Muhammet Sanlı, Cengiz Bahadır Kaya, Umut Furkan Bayram, Alperen Demirtaş
 
 
-[1. gereksinim analizi](gereksinimAnalizleri.md) 
+[1. Gereksinim Analizi](gereksinimAnalizleri.md) 
