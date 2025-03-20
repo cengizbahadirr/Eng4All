@@ -28,4 +28,4 @@ Eng4All Team
 
 ---
 
-[1. Gereksinim Analizi](gereksinimAnalizleri.md)
+[1. Gereksinim Analizi](Gereksinim-Analizi.md)
