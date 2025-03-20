@@ -1,21 +1,31 @@
 # Eng4All
 
-Proje Tanımı:
+## Proje Tanımı
 Eng4All, İngilizce kelime öğrenmeyi eğlenceli ve etkili hale getiren interaktif bir eğitim platformudur. Sık kullanılan İngilizce kelimeleri öğretmeye odaklanan bu platform, oyunlar, bulmacalar ve eğitici aktiviteler ile kelime bilgisini geliştirmeyi amaçlamaktadır. Kullanıcı dostu arayüzü ve eğlenceli içerikleri sayesinde her yaş grubundan kullanıcı, İngilizce kelimeleri daha hızlı ve kalıcı bir şekilde öğrenebilir. Eng4All, dil öğrenme sürecini monoton ezber tekniklerinden çıkarıp, oyunlaştırılmış bir deneyime dönüştürerek kullanıcıların motivasyonlarını artırmayı hedeflemektedir.
 
-Proje Kategorisi:
+## Proje Kategorisi
 Eğitim Teknolojileri
 
-Referans Uygulama:
-quizlet, wordwall, Duolingo, Ulangi, wordup, etkilipratikingilizce
+## Referans Uygulama
+- quizlet
+- wordwall
+- Duolingo
+- Ulangi
+- wordup
+- etkilipratikingilizce
 
-Uygulama Adresi:
-eng4all.co
+## Uygulama Adresi
+[eng4all.co](http://eng4all.co)
 
-Grup Adı:
+## Grup Adı
 Eng4All Team
 
-Proje Ekibi: Muhammet Sanlı, Cengiz Bahadır Kaya, Umut Furkan Bayram, Alperen Demirtaş
+## Proje Ekibi
+- Muhammet Sanlı
+- Cengiz Bahadır Kaya
+- Umut Furkan Bayram
+- Alperen Demirtaş
 
+---
 
-[1. Gereksinim Analizi](gereksinimAnalizleri.md) 
+[1. Gereksinim Analizi](gereksinimAnalizleri.md)
