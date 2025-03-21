@@ -15,7 +15,7 @@ Eğitim Teknolojileri
 - etkilipratikingilizce
 
 ## Uygulama Adresi
-[eng4all.co](http://eng4all.co)
+[eng4all.tr](http://eng4all.tr)
 
 ## Grup Adı
 Eng4All Team
