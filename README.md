@@ -29,3 +29,4 @@ Eng4All Team
 ---
 
 [1. Gereksinim Analizi](Gereksinim-Analizi.md)
+[2. Durum Diyagramı](Durum-Diyagramı.svg)
