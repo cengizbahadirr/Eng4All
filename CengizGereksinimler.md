@@ -8,4 +8,4 @@
 
 17.Geribildirim ve site puanlama: uygulamanın gelişimi için kullanıcının geribildirim bırakıp puanlama yapabileceği bir sekme.
 
-18.Sesli Telaffuz: kullanıcı istediği kelimenin sesli telaffuzunu dinleyebilir.
+18.Sesli Telaffuz:kullanıcı istediği kelimenin sesli telaffuzunu dinleyebilir.
