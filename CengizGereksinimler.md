@@ -8,8 +8,5 @@
 
 17.Geribildirim ve site puanlama: Uygulamanın gelişimi için kullanıcının geri bildirim bırakıp puanlama yapabileceği bir alan.
 
-<<<<<<< HEAD
-18.Kelimeleri sesli dinleme desteği: Kullanıcı istediği kelimenin telaffuzunu dinleyebilir.
-=======
 18.Kelimeleri sesli dinleme desteği: Kullanıcı istediği kelimenin telaffuzunu dinleyebilir
->>>>>>> 5436df38600578de0806af0a04552d332f8e7df7
+
