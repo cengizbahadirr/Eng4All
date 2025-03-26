@@ -29,5 +29,5 @@ Eng4All Team
 ---
 
 [1. Gereksinim Analizi](Gereksinim-Analizi.md)  
-[2. Durum Diyagramı](Durum-Diyagramı.svg) 
-[3. Durum Senaryoları](durumSenaryolari.md) 
+[2. Durum Diyagramı](Durum-Diyagramı.svg)  
+[3. Durum Senaryoları](durumSenaryolari.md)  
