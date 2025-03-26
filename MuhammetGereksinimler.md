@@ -1,4 +1,4 @@
-7.Kelimeleri farklı bağlamlara (örneğin, iş, akademik, resmi) göre sınıflandırma: Kelimeleri alanlarına göre ayırarak kullanıcının ilgilendiği kısma çalışmasında yardımcı olur.
+7.Kelimeleri farklı bölümlerine (örneğin, iş, akademik, resmi) göre sınıflandırma: Kelimeleri alanlarına göre ayırarak kullanıcının ilgilendiği kısma çalışmasında yardımcı olur.
 
 8.İlerleme takibi: Kullanıcının yaptığı doğruları ve yanlışları kayıt etme.
 
