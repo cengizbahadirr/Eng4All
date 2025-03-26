@@ -1,6 +1,6 @@
-1.Giriş yapma: Kullanıcıların geçerli kimlik bilgileriyle (e-posta/şifre veya sosyal medya hesapları) sisteme giriş yapabilmesi.
+1.Giriş yapma: Kullanıcıların geçerli kimlik bilgileriyle (e-posta/şifre) sisteme giriş yapabilmesi.
 
-2.Kayıt olma: Yeni kullanıcıların e-posta/şifre ya da farklı kimlik doğrulama yöntemleri (Google, Facebook vb.) ile hesap oluşturabilmesi.
+2.Kayıt olma: Yeni kullanıcıların e-posta/şifre ile hesap oluşturabilmesi.
 
 3.Kullanıcı seviye tespiti: Yapılan test sonucu kullanıcının İngilizce seviyesi belirlenir. (CEFR seviyesine göre.)
 
