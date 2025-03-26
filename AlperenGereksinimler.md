@@ -10,4 +10,6 @@
 *Kelime Pratiği Alanı :Farklı seviyelerde (temel, orta, ileri) kelime listeleri, anlamları, cümle örnekleri ve alıştırmalar.
 *Gramer Pratiği Alanı :Temel dilbilgisi kurallarının anlatıldığı, örneklerle desteklendiği ve etkileşimli alıştırmaların sunulduğu bölüm.
 
-6.Gramer düzeltmeleri yapan AI chatbot: Kullanıcıların yazılarını veya cümlelerini girip anında yapay zekâ desteğiyle düzeltmeler alabileceği sohbet robotu.
+6.Gramer düzeltmeleri yapan AI chatbot: Kullanıcıların sohbet ederek ingilizce pratiği yapabileceği ve gramer hatalarını düzelten sohbet robotu
+
+
