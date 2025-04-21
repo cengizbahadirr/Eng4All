@@ -1,5 +1,9 @@
 Frontend'i yayınladığımız domain adresi: https://www.eng4all.tr/
 
+Giriş yapma, kayıt olma çalışıyor, 
+Ayrıca giriş yapılabilir bir hesap: alperendemirtas90@gmail.com 
+şifre :alperen123
+
 ## Alperen Demirtaş Frontend
 ---
 1) Giriş Yapma
