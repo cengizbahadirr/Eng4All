@@ -27,12 +27,15 @@ jobs:
         cache: 'pnpm'
 
     - name: Install dependencies
+      working-directory: ./Front-End
       run: pnpm install
 
     - name: Lint project
+      working-directory: ./Front-End
       run: pnpm lint
 
     - name: Build project
+      working-directory: ./Front-End
       run: pnpm build
 
   build-and-push-docker:
