@@ -9,6 +9,7 @@ import crypto from "crypto";
 import { Resend } from 'resend';
 import { jwtVerify } from 'jose'; // jwtVerify importu eklendi
 import { ResetPasswordEmail } from '@/components/emails/ResetPasswordEmail';
+import redisClient from '@/lib/redis';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -112,6 +113,10 @@ export async function signIn(formData: FormData) {
     }
     const token = createToken(userIdStringFromUser);
 
+    await redisClient.set(`session:${userIdStringFromUser}`, 'active', {
+        EX: 60 * 60 * 24, // 1 gün geçerli
+    });
+
     const cookieStore = await cookies();
     cookieStore.set("token", token, { 
       httpOnly: true,
@@ -132,6 +137,30 @@ export async function signIn(formData: FormData) {
 export async function signOut() {
   try {
     const cookieStore = await cookies();
+    const tokenCookie = cookieStore.get('token');
+    const token = tokenCookie?.value;
+
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, JWT_SECRET!) as { userId: string; exp: number };
+        const { userId, exp } = decoded;
+
+        const nowInSeconds = Math.floor(Date.now() / 1000);
+        const expiresIn = exp - nowInSeconds;
+
+        if (expiresIn > 0) {
+          await redisClient.set(`blacklist:${token}`, 'true', {
+            EX: expiresIn,
+          });
+        }
+        
+        await redisClient.del(`session:${userId}`);
+      } catch (e) {
+        // Token geçersiz veya süresi dolmuşsa hata vermeden devam et
+        console.error("Token doğrulanırken veya Redis işlemi sırasında hata:", e);
+      }
+    }
+
     cookieStore.delete("token"); 
     return { success: true, message: "Başarıyla çıkış yapıldı." };
   } catch (error: any) {
@@ -200,10 +229,27 @@ export async function getUserIdFromToken(): Promise<string | null> {
   if (!token || !JWT_SECRET) {
     return null;
   }
+
   try {
+    const isBlacklisted = await redisClient.get(`blacklist:${token}`);
+    if (isBlacklisted) {
+      return null;
+    }
+
     const secret = new TextEncoder().encode(JWT_SECRET);
     const { payload } = await jwtVerify(token, secret);
-    return (payload.userId as string) || (payload.sub as string) || null;
+    
+    const userId = (payload.userId as string) || (payload.sub as string) || null;
+
+    if (userId) {
+      const session = await redisClient.get(`session:${userId}`);
+      if (!session) {
+        // Oturum Redis'te yoksa, token geçerli olsa bile null dön
+        return null;
+      }
+    }
+
+    return userId;
   } catch (error) {
     return null;
   }
