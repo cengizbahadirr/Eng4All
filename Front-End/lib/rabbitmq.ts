@@ -1,9 +1,13 @@
-import amqp from 'amqplib';
+import * as amqp from 'amqplib';
+
+// Helper types to infer connection and channel from the library itself
+type AmqpConnection = Awaited<ReturnType<typeof amqp.connect>>;
+type AmqpChannel = Awaited<ReturnType<AmqpConnection['createChannel']>>;
 
 const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://localhost';
 
-let connection: amqp.Connection | null = null;
-let channel: amqp.Channel | null = null;
+let connection: AmqpConnection | null = null;
+let channel: AmqpChannel | null = null;
 
 export async function connectToRabbitMQ() {
   if (connection && channel) {

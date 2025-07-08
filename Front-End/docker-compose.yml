@@ -1,0 +1,15 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env.docker
+    ports:
+      - "8080:3000"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
