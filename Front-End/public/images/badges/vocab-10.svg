@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="64" height="64">
+  <path d="M20 10 H 80 L 70 25 H 30 Z" fill="#87CEEB" stroke="#4682B4" stroke-width="2"/>
+  <path d="M20 10 V 80 H 80 V 25" fill="none" stroke="#4682B4" stroke-width="3"/>
+  <rect x="20" y="80" width="60" height="10" fill="#87CEEB" stroke="#4682B4" stroke-width="2"/>
+  <text x="50" y="55" font-size="20" fill="#191970" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold">10</text>
+  <text x="50" y="70" font-size="10" fill="#191970" text-anchor="middle" font-family="Arial, sans-serif">Kelime</text>
+</svg>

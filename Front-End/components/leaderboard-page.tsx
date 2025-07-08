@@ -1,340 +1,132 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { ChevronDown, Medal, Search, Trophy, Users } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AlertTriangle, Trophy, Crown, Medal, Award } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+
+interface LeaderboardUser {
+  _id: string;
+  name: string;
+  avatarUrl: string;
+  weeklyPoints: number;
+  currentLevel: string;
+}
+
+const RankIcon = ({ rank }: { rank: number }) => {
+  if (rank === 1) return <Crown className="h-6 w-6 text-yellow-500" />;
+  if (rank === 2) return <Medal className="h-6 w-6 text-gray-400" />;
+  if (rank === 3) return <Award className="h-6 w-6 text-yellow-700" />;
+  return <span className="font-semibold text-lg w-6 text-center">{rank}</span>;
+};
 
 export default function LeaderboardPage() {
-  const [searchQuery, setSearchQuery] = useState("")
+  const { user: currentUser } = useAuth();
+  const [leaderboardData, setLeaderboardData] = useState<LeaderboardUser[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Sahte kullanıcı verileri
-  const users = [
-    {
-      id: 1,
-      name: "Ahmet Yılmaz",
-      points: 3250,
-      streak: 45,
-      level: "B2",
-      avatarUrl: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      id: 2,
-      name: "Zeynep Kaya",
-      points: 3120,
-      streak: 62,
-      level: "B2",
-      avatarUrl: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      id: 3,
-      name: "Mehmet Demir",
-      points: 2980,
-      streak: 38,
-      level: "B1",
-      avatarUrl: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      id: 4,
-      name: "Ayşe Çelik",
-      points: 2845,
-      streak: 29,
-      level: "B1",
-      avatarUrl: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      id: 5,
-      name: "Mustafa Şahin",
-      points: 2790,
-      streak: 33,
-      level: "B1",
-      avatarUrl: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      id: 6,
-      name: "Elif Yıldız",
-      points: 2650,
-      streak: 27,
-      level: "A2",
-      avatarUrl: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      id: 7,
-      name: "Burak Öztürk",
-      points: 2540,
-      streak: 21,
-      level: "B1",
-      avatarUrl: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      id: 8,
-      name: "Selin Aydın",
-      points: 2480,
-      streak: 19,
-      level: "A2",
-      avatarUrl: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      id: 9,
-      name: "Emre Kara",
-      points: 2350,
-      streak: 15,
-      level: "A2",
-      avatarUrl: "/placeholder.svg?height=40&width=40",
-    },
-    {
-      id: 10,
-      name: "Deniz Koç",
-      points: 2290,
-      streak: 12,
-      level: "A2",
-      avatarUrl: "/placeholder.svg?height=40&width=40",
-    },
-  ]
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await fetch('/api/leaderboard');
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
+        const result = await response.json();
+        if (result.success) {
+          setLeaderboardData(result.data);
+        } else {
+          throw new Error(result.error || "Liderlik tablosu verileri alınamadı.");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err));
+        console.error("Liderlik tablosu alınırken hata:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // Filtreleme fonksiyonu
-  const filteredUsers = users.filter((user) => user.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    fetchLeaderboard();
+  }, []);
+
+  const renderSkeleton = () => (
+    <div className="space-y-4">
+      {[...Array(10)].map((_, i) => (
+        <div key={i} className="flex items-center space-x-4 p-4">
+          <Skeleton className="h-6 w-6" />
+          <Skeleton className="h-12 w-12 rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-[250px]" />
+            <Skeleton className="h-4 w-[200px]" />
+          </div>
+          <Skeleton className="h-6 w-16 ml-auto" />
+        </div>
+      ))}
+    </div>
+  );
+
+  if (error) {
+    return (
+      <div className="text-center py-10">
+        <AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" />
+        <h2 className="text-xl font-semibold text-red-600 mb-2">Bir Hata Oluştu</h2>
+        <p className="text-muted-foreground">{error}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">Puan Tabloları</h1>
-        <p className="text-muted-foreground mt-1">Diğer öğrencilerle rekabet edin ve sıralamanızı görün</p>
+    <div className="container mx-auto py-8 px-4 md:px-6 lg:px-8">
+      <div className="mb-8 text-center">
+        <Trophy className="mx-auto h-12 w-12 text-yellow-500 mb-4" />
+        <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Haftalık Liderlik Tablosu</h1>
+        <p className="mt-3 text-lg text-muted-foreground sm:mt-4">
+          Bu hafta en çok puan kazanan öğrencilerle rekabet et!
+        </p>
       </div>
 
-      <div className="flex items-center space-x-2 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Kullanıcı ara..."
-            className="pl-8 bg-muted focus:border-lilac focus:ring-lilac"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <Button variant="outline" className="flex items-center gap-2">
-          Filtrele
-          <ChevronDown className="h-4 w-4" />
-        </Button>
-      </div>
-
-      <Tabs defaultValue="global" className="space-y-4">
-        <TabsList className="bg-muted/50 p-1">
-          <TabsTrigger value="global" className="data-[state=active]:bg-lilac data-[state=active]:text-white">
-            Genel Sıralama
-          </TabsTrigger>
-          <TabsTrigger value="friends" className="data-[state=active]:bg-lilac data-[state=active]:text-white">
-            Arkadaşlarım
-          </TabsTrigger>
-          <TabsTrigger value="weekly" className="data-[state=active]:bg-lilac data-[state=active]:text-white">
-            Haftalık
-          </TabsTrigger>
-          <TabsTrigger value="monthly" className="data-[state=active]:bg-lilac data-[state=active]:text-white">
-            Aylık
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="global" className="space-y-4">
-          <Card className="border-lilac/20">
-            <CardHeader>
-              <CardTitle>En İyi 10 Kullanıcı</CardTitle>
-              <CardDescription>Tüm zamanların en yüksek puanlı kullanıcıları</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {filteredUsers.map((user, index) => (
-                  <div key={user.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center justify-center w-8">
-                        {index === 0 ? (
-                          <Trophy className="h-6 w-6 text-yellow-500" />
-                        ) : index === 1 ? (
-                          <Medal className="h-6 w-6 text-gray-400" />
-                        ) : index === 2 ? (
-                          <Medal className="h-6 w-6 text-amber-600" />
-                        ) : (
-                          <span className="text-lg font-medium text-muted-foreground">{index + 1}</span>
-                        )}
-                      </div>
-                      <Avatar className="h-10 w-10 border-2 border-lilac">
-                        <AvatarImage src={user.avatarUrl || "/placeholder.svg"} alt={user.name} />
-                        <AvatarFallback className="bg-lilac/20 text-lilac">{user.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{user.name}</p>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Badge variant="outline" className="text-xs">
-                            {user.level}
-                          </Badge>
-                          <span>🔥 {user.streak} gün</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1 font-medium">
-                      <span>{user.points}</span>
-                      <span className="text-xs text-muted-foreground">puan</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-lilac/20">
-            <CardHeader>
-              <CardTitle>Sizin Sıralamanız</CardTitle>
-              <CardDescription>Genel sıralamadaki yeriniz</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between p-2 rounded-lg bg-lilac/5">
-                <div className="flex items-center gap-4">
-                  <span className="text-lg font-medium w-8 text-center">7</span>
-                  <Avatar className="h-10 w-10 border-2 border-lilac">
-                    <AvatarImage src="/placeholder.svg?height=40&width=40" alt="Alperen Yılmaz" />
-                    <AvatarFallback className="bg-lilac/20 text-lilac">A</AvatarFallback>
+      <Card>
+        <CardHeader>
+          <CardTitle>Sıralama</CardTitle>
+          <CardDescription>Haftalık puanlara göre ilk 100 kullanıcı.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            renderSkeleton()
+          ) : leaderboardData.length > 0 ? (
+            <ul className="divide-y divide-border">
+              {leaderboardData.map((user, index) => (
+                <li key={user._id} className={`flex items-center space-x-4 p-4 ${currentUser?._id === user._id ? 'bg-primary/10 rounded-lg' : ''}`}>
+                  <RankIcon rank={index + 1} />
+                  <Avatar>
+                    <AvatarImage src={user.avatarUrl} alt={user.name} />
+                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                   </Avatar>
-                  <div>
-                    <p className="font-medium">Alperen Yılmaz</p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Badge variant="outline" className="text-xs">
-                        B1
-                      </Badge>
-                      <span>🔥 15 gün</span>
-                    </div>
+                  <div className="flex-grow">
+                    <p className="font-semibold text-foreground">{user.name}</p>
+                    <p className="text-sm text-muted-foreground">{user.currentLevel || 'Seviye Belirlenmedi'}</p>
                   </div>
-                </div>
-                <div className="flex items-center gap-1 font-medium">
-                  <span>2540</span>
-                  <span className="text-xs text-muted-foreground">puan</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="friends">
-          <Card className="border-lilac/20">
-            <CardHeader>
-              <CardTitle>Arkadaşlarınız</CardTitle>
-              <CardDescription>Arkadaşlarınız arasındaki sıralama</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <Users className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium mb-2">Henüz arkadaşınız yok</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Arkadaşlarınızı ekleyerek onlarla rekabet edebilirsiniz.
-                </p>
-                <Button className="bg-lilac hover:bg-lilac/90 text-white">Arkadaş Ekle</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="weekly">
-          <Card className="border-lilac/20">
-            <CardHeader>
-              <CardTitle>Haftalık Sıralama</CardTitle>
-              <CardDescription>Bu haftanın en yüksek puanlı kullanıcıları</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {filteredUsers
-                  .slice()
-                  .sort(() => Math.random() - 0.5)
-                  .map((user, index) => (
-                    <div key={user.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center justify-center w-8">
-                          {index === 0 ? (
-                            <Trophy className="h-6 w-6 text-yellow-500" />
-                          ) : index === 1 ? (
-                            <Medal className="h-6 w-6 text-gray-400" />
-                          ) : index === 2 ? (
-                            <Medal className="h-6 w-6 text-amber-600" />
-                          ) : (
-                            <span className="text-lg font-medium text-muted-foreground">{index + 1}</span>
-                          )}
-                        </div>
-                        <Avatar className="h-10 w-10 border-2 border-lilac">
-                          <AvatarImage src={user.avatarUrl || "/placeholder.svg"} alt={user.name} />
-                          <AvatarFallback className="bg-lilac/20 text-lilac">{user.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{user.name}</p>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <Badge variant="outline" className="text-xs">
-                              {user.level}
-                            </Badge>
-                            <span>🔥 {user.streak} gün</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 font-medium">
-                        <span>{Math.floor(user.points / 10)}</span>
-                        <span className="text-xs text-muted-foreground">puan</span>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="monthly">
-          <Card className="border-lilac/20">
-            <CardHeader>
-              <CardTitle>Aylık Sıralama</CardTitle>
-              <CardDescription>Bu ayın en yüksek puanlı kullanıcıları</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {filteredUsers
-                  .slice()
-                  .sort(() => Math.random() - 0.5)
-                  .map((user, index) => (
-                    <div key={user.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center justify-center w-8">
-                          {index === 0 ? (
-                            <Trophy className="h-6 w-6 text-yellow-500" />
-                          ) : index === 1 ? (
-                            <Medal className="h-6 w-6 text-gray-400" />
-                          ) : index === 2 ? (
-                            <Medal className="h-6 w-6 text-amber-600" />
-                          ) : (
-                            <span className="text-lg font-medium text-muted-foreground">{index + 1}</span>
-                          )}
-                        </div>
-                        <Avatar className="h-10 w-10 border-2 border-lilac">
-                          <AvatarImage src={user.avatarUrl || "/placeholder.svg"} alt={user.name} />
-                          <AvatarFallback className="bg-lilac/20 text-lilac">{user.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{user.name}</p>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <Badge variant="outline" className="text-xs">
-                              {user.level}
-                            </Badge>
-                            <span>🔥 {user.streak} gün</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 font-medium">
-                        <span>{Math.floor(user.points / 3)}</span>
-                        <span className="text-xs text-muted-foreground">puan</span>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                  <div className="text-right">
+                    <p className="font-bold text-lg text-primary">{user.weeklyPoints}</p>
+                    <p className="text-xs text-muted-foreground">puan</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="text-center py-10">
+              <p className="text-muted-foreground">Bu hafta henüz kimse puan kazanmadı.</p>
+              <p className="text-sm text-muted-foreground">İlk puanı kazanarak listeye adını yazdır!</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
-  )
+  );
 }

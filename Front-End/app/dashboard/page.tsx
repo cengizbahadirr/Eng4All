@@ -1,10 +1,16 @@
-import { MainDashboard } from "@/components/main-dashboard"
-import DashboardPage from "@/components/dashboard-page"
+import DashboardPage from "@/components/dashboard-page";
+// MainDashboard importu ve sarmalayıcısı kaldırıldı
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Ana Sayfa - Eng4All",
+  description: "Eng4All kullanıcı ana sayfası.",
+};
 
 export default function Dashboard() {
   return (
-    <MainDashboard initialActiveNav="/dashboard">
+    // <div className="container mx-auto p-4 md:p-6 lg:p-8"> // İsteğe bağlı sarmalayıcı
       <DashboardPage />
-    </MainDashboard>
-  )
+    // </div>
+  );
 }

@@ -1,0 +1,64 @@
+# Bu Github Actions iş akışının adı
+name: Next.js CI/CD
+
+# Bu iş akışını tetikleyecek olaylar
+on:
+  # 'main' branch'ine her push yapıldığında çalışır
+  push:
+    branches: [ main ]
+  # 'main' branch'ine yönelik her pull request açıldığında veya güncellendiğinde çalışır
+  pull_request:
+    branches: [ main ]
+
+# İş akışında çalışacak işler (jobs)
+jobs:
+  # 'build' adında bir iş tanımlıyoruz
+  build:
+    # İşin çalışacağı sanal makine ortamı
+    runs-on: ubuntu-latest
+
+    # İşin adımları
+    steps:
+      # 1. Adım: Kodu (repository) sanal makineye indirir
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Adım: pnpm'i kurar ve ayarlar
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8 # Projenizin kullandığı pnpm versiyonu
+
+      # 3. Adım: Node.js'i kurar (örneğin 20.x versiyonu)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'pnpm' # pnpm için önbellekleme mekanizmasını kullan
+
+      # 4. Adım: Proje bağımlılıklarını yükler
+      - name: Install dependencies
+        run: pnpm install
+
+      # 5. Adım: Kod stilini ve olası hataları kontrol eder (lint)
+      - name: Run Lint
+        run: pnpm lint
+
+      # 6. Adım: Projeyi derler (build)
+      - name: Build project
+        run: pnpm build
+
+      # 7. Adım (Opsiyonel - Gelecek için): Testleri çalıştırır
+      # Eğer projenizde testler varsa, bu adımı aktif edebilirsiniz.
+      # - name: Run tests
+      #   run: pnpm test
+
+      # 8. Adım (Opsiyonel - Manuel Ayar Gerektirir): Vercel'e Deploy Etme
+      # Bu adımı kullanmak için Github projenizin ayarlarında VERCEL_ORG_ID,
+      # VERCEL_PROJECT_ID ve VERCEL_TOKEN'ı "Secrets" olarak eklemeniz gerekir.
+      # - name: Deploy to Vercel
+      #   uses: amondnet/vercel-action@v25
+      #   with:
+      #     vercel-token: ${{ secrets.VERCEL_TOKEN }}
+      #     vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+      #     vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}

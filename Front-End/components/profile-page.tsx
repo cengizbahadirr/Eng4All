@@ -1,81 +1,116 @@
 "use client"
 
-import { useState } from "react"
-import { Award, BookOpen, Calendar, Edit, Settings, Trophy, Clock, Volume2, Heart } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react"
+import { Award, BookOpen, Calendar, Edit, Settings, Trophy, Upload, Eye, EyeOff, CheckCircle, XCircle, Image as ImageIcon, CheckCircle2 } from "lucide-react" // CheckCircle2 yerine CheckCircle olmalıydı, düzeltildi ve ImageIcon eklendi
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Badge as UiBadge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
+// Input bileşeni artık kullanılmıyor (dosya yükleme kaldırıldığı için)
+// import { Input } from "@/components/ui/input" 
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog"
 import { LevelAssessmentTest } from "@/components/level-assessment-test/level-assessment-test"
 import { useToast } from "@/hooks/use-toast"
-import { useUser } from "@/hooks/use-user"
+import { useAuth } from "@/hooks/useAuth"
+import { updateUserCurrentLevel, updateUserProfilePicture, updateUserBadgeVisibility, updateUserAvatar } from "@/actions/profile-actions";
+import Image from 'next/image';
+
+interface Badge {
+  badgeId: string;
+  name: string;
+  description?: string;
+  iconUrl: string;
+  earnedAt: Date;
+  isVisible?: boolean;
+}
+
+const localStockAvatars = [
+  { id: 'male1', gender: 'male', url: '/images/avatars/male1.png' },
+  { id: 'male2', gender: 'male', url: '/images/avatars/male2.png' },
+  { id: 'male3', gender: 'male', url: '/images/avatars/male3.png' },
+  { id: 'female1', gender: 'female', url: '/images/avatars/female1.png' },
+  { id: 'female2', gender: 'female', url: '/images/avatars/female2.png' },
+  { id: 'female3', gender: 'female', url: '/images/avatars/female3.png' },
+];
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("overview")
   const [showLevelTest, setShowLevelTest] = useState(false)
-  const { toast } = useToast()
-  const { user, setUser } = useUser()
+  const [isUploading, setIsUploading] = useState(false); 
+  const [showBadgeSettings, setShowBadgeSettings] = useState(false);
+  const [showAvatarSelection, setShowAvatarSelection] = useState(false);
+  const [selectedStockAvatar, setSelectedStockAvatar] = useState<string | null>(null);
 
-  // Sample user data
+  const { toast } = useToast()
+  const { user, isLoading: isAuthLoading, isError: authError, mutate: mutateAuth } = useAuth();
+  
   const userData = {
-    id: "1",
-    name: user?.displayName || "Alperen Yılmaz",
-    username: "alperen",
-    email: user?.email || "alperen@example.com",
-    avatarUrl: "/placeholder.svg?height=128&width=128",
-    level: user?.level || "B1",
-    points: user?.points || 2540,
-    streak: user?.streak || 15,
-    joinDate: "Ocak 2023",
-    bio: "İngilizce öğrenmeye hevesli bir öğrenci. Teknoloji ve yazılım alanlarına ilgi duyuyorum.",
-    achievements: [
-      { id: 1, title: "Başlangıç", description: "İlk giriş", icon: "🏆", date: "10 Ocak 2023" },
-      { id: 2, title: "Kelime Ustası", description: "100 kelime öğrenildi", icon: "📚", date: "25 Ocak 2023" },
-      { id: 3, title: "Quiz Kralı", description: "10 quiz tamamlandı", icon: "🎯", date: "15 Şubat 2023" },
-      { id: 4, title: "Düzenli Öğrenci", description: "7 gün arka arkaya çalışma", icon: "🔥", date: "22 Şubat 2023" },
-      {
-        id: 5,
-        title: "Gramer Dehası",
-        description: "Tüm temel gramer konuları tamamlandı",
-        icon: "📝",
-        date: "10 Mart 2023",
-      },
-    ],
+    id: user?._id?.toString() || "1",
+    name: user?.name || "Kullanıcı Adı",
+    avatarUrl: user?.avatarUrl || "/placeholder-user.jpg", 
+    level: user?.currentLevel || "Belirlenmedi", 
+    points: user?.points || 0,
+    successPercentage: user?.successPercentage || 0, 
+    badges: user?.badges || [], 
+    streak: user?.streakCount || 0,
+    joinDate: user?.createdAt ? new Date(user.createdAt).toLocaleDateString("tr-TR", { year: 'numeric', month: 'long' }) : "Bilinmiyor",
+    bio: "İngilizce öğrenmeye hevesli bir öğrenci.", 
     stats: {
-      wordsLearned: 1245,
-      quizzesCompleted: 24,
-      grammarTopicsCompleted: 18,
-      totalStudyTime: "42.5 saat",
-      correctAnswerRate: "78%",
+      wordsLearned: user?.points || 0, 
+      correctAnswerRate: `${user?.successPercentage?.toFixed(1) || 0}%`, 
     },
   }
 
-  const handleLevelTestComplete = (level: string) => {
-    setShowLevelTest(false)
-
-    // Update user level
-    if (setUser && user) {
-      setUser({
-        ...user,
-        level,
-        hasCompletedLevelTest: true,
-      })
+  const handleStockAvatarSave = async () => {
+    if (!selectedStockAvatar) {
+      toast({ title: "Hata", description: "Lütfen bir avatar seçin.", variant: "destructive" });
+      return;
     }
+    setIsUploading(true); 
+    try {
+      const result = await updateUserAvatar(selectedStockAvatar); 
+      if (result.success && result.avatarUrl) {
+        toast({ title: "Başarılı", description: "Avatarınız güncellendi." });
+        mutateAuth();
+        setShowAvatarSelection(false); 
+        setSelectedStockAvatar(null);
+      } else {
+        toast({ title: "Hata", description: result.error || "Avatar güncellenirken bir sorun oluştu.", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Hata", description: "Avatar güncellenirken bir hata oluştu.", variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
-    // Save level test completion to localStorage
-    localStorage.setItem("hasCompletedLevelTest", "true")
-    localStorage.setItem("hasShownLevelTest", "true")
-
+  const handleLevelTestComplete = async (level: string) => {
+    setShowLevelTest(false);
     toast({
-      title: "Seviye kaydedildi",
-      description: `İngilizce seviyeniz ${level} olarak kaydedildi.`,
-    })
-  }
+      title: "Seviye Testi Tamamlandı!",
+      description: `Seviyeniz ${level} olarak belirlendi. Profilinize kaydediliyor...`,
+    });
 
-  if (!user) {
+    const result = await updateUserCurrentLevel(level); 
+    if (result.success && result.newLevel) {
+      toast({
+        title: "Başarılı!",
+        description: `Seviyeniz (${result.newLevel}) profilinize başarıyla kaydedildi.`,
+      });
+      mutateAuth(); 
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Hata",
+        description: result.error || "Seviyeniz kaydedilirken bir sorun oluştu.",
+      });
+    }
+  };
+  
+  if (isAuthLoading) { 
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
@@ -84,6 +119,14 @@ export default function ProfilePage() {
         </div>
       </div>
     )
+  }
+
+  if (authError || !user) {
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-background">
+            <p className="text-muted-foreground">Kullanıcı bilgileri yüklenemedi veya giriş yapılmamış.</p>
+        </div>
+    );
   }
 
   return (
@@ -96,25 +139,57 @@ export default function ProfilePage() {
       <Card className="border-lilac/20 mb-6">
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
-            <div className="relative">
-              <Avatar className="h-32 w-32 border-4 border-background">
-                <AvatarImage src={userData.avatarUrl || "/placeholder.svg?height=128&width=128"} alt={userData.name} />
-                <AvatarFallback className="bg-lilac/20 text-lilac">{userData.name.charAt(0)}</AvatarFallback>
+            <div className="relative group">
+              <Avatar className="h-32 w-32 border-4 border-background shadow-lg">
+                <AvatarImage src={userData.avatarUrl} alt={userData.name} />
+                <AvatarFallback className="bg-lilac/20 text-lilac text-4xl">{userData.name.charAt(0)}</AvatarFallback>
               </Avatar>
-              <Button size="icon" variant="outline" className="absolute bottom-0 right-0 rounded-full bg-background">
-                <Edit className="h-4 w-4" />
-              </Button>
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
+                <Dialog open={showAvatarSelection} onOpenChange={setShowAvatarSelection}>
+                  <DialogTrigger asChild>
+                     <Button size="sm" variant="outline" className="text-xs bg-white/80 hover:bg-white">
+                        <ImageIcon className="h-3 w-3 mr-1" /> Avatar Seç
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Stok Avatar Seç</DialogTitle>
+                      <DialogDescription>Beğendiğiniz bir avatarı seçin.</DialogDescription>
+                    </DialogHeader>
+                    <div className="grid grid-cols-3 gap-3 py-4 max-h-80 overflow-y-auto">
+                      {localStockAvatars.map(avatar => (
+                        <div 
+                          key={avatar.id} 
+                          className={`p-1 border-2 rounded-lg cursor-pointer hover:border-purple-500 transition-all
+                            ${selectedStockAvatar === avatar.url ? 'border-purple-600 ring-2 ring-purple-600' : 'border-transparent'}`}
+                          onClick={() => setSelectedStockAvatar(avatar.url)}
+                        >
+                          <Image src={avatar.url} alt={avatar.id} width={80} height={80} className="rounded-md w-full h-auto object-cover" />
+                        </div>
+                      ))}
+                    </div>
+                    <DialogFooter>
+                      <Button onClick={handleStockAvatarSave} disabled={isUploading || !selectedStockAvatar}>
+                        {isUploading ? "Kaydediliyor..." : "Avatarı Kaydet"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
 
             <div className="flex-1 text-center md:text-left">
               <div className="flex flex-col md:flex-row md:items-center gap-2 mb-2">
                 <h2 className="text-2xl font-bold">{userData.name}</h2>
-                <Badge variant="outline" className="w-fit mx-auto md:mx-0 bg-lilac/10 text-lilac border-lilac">
-                  {userData.level} Seviye
-                </Badge>
+                {userData.level && userData.level !== "Belirlenmedi" && (
+                  <UiBadge variant="outline" className="w-fit mx-auto md:mx-0 bg-lilac/10 text-lilac border-lilac">
+                    {userData.level} Seviye
+                  </UiBadge>
+                )}
               </div>
 
-              <p className="text-muted-foreground mb-4">{userData.bio}</p>
+              <p className="text-muted-foreground mb-1">{userData.bio}</p>
+              <p className="text-sm text-muted-foreground mb-4">Başarı Yüzdesi: {userData.successPercentage}%</p>
 
               <div className="flex flex-wrap justify-center md:justify-start gap-4 mb-4">
                 <div className="flex items-center gap-1">
@@ -144,34 +219,69 @@ export default function ProfilePage() {
                   <Award className="h-4 w-4 mr-2" />
                   Seviye Testini Yap
                 </Button>
-                <Button variant="outline">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Ayarlar
-                </Button>
+                <Dialog open={showBadgeSettings} onOpenChange={setShowBadgeSettings}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Rozet Ayarları
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Rozet Görünürlük Ayarları</DialogTitle>
+                      <DialogDescription>
+                        Hangi rozetlerin profilinizde görüneceğini seçin.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="max-h-60 overflow-y-auto py-4 space-y-2">
+                      {userData.badges.length > 0 ? userData.badges.map((badge) => (
+                        <div key={badge.badgeId} className="flex items-center justify-between p-2 border rounded-md">
+                          <div className="flex items-center gap-2">
+                            <img src={badge.iconUrl || '/placeholder.svg'} alt={badge.name} className="h-8 w-8" />
+                            <span>{badge.name}</span>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant={badge.isVisible === false ? "secondary" : "outline"}
+                            onClick={async () => {
+                              const newVisibility = !(badge.isVisible === false); 
+                              const result = await updateUserBadgeVisibility(badge.badgeId, newVisibility);
+                              if (result.success) {
+                                toast({ title: "Başarılı", description: `${badge.name} rozetinin görünürlüğü güncellendi.` });
+                                mutateAuth(); 
+                              } else {
+                                toast({ title: "Hata", description: result.error || "Rozet görünürlüğü güncellenemedi.", variant: "destructive" });
+                              }
+                            }}
+                          >
+                            {badge.isVisible === false ? <EyeOff className="h-4 w-4 mr-1" /> : <Eye className="h-4 w-4 mr-1" />}
+                            {badge.isVisible === false ? "Gizli" : "Görünür"}
+                          </Button>
+                        </div>
+                      )) : <p className="text-sm text-muted-foreground">Henüz kazanılmış rozetiniz bulunmuyor.</p>}
+                    </div>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button type="button" variant="outline">Kapat</Button>
+                        </DialogClose>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="overview" className="space-y-4">
+      <Tabs defaultValue="overview" onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="bg-muted/50 p-1">
-          <TabsTrigger value="overview" className="data-[state=active]:bg-lilac data-[state=active]:text-white">
-            Genel Bakış
-          </TabsTrigger>
-          <TabsTrigger value="achievements" className="data-[state=active]:bg-lilac data-[state=active]:text-white">
-            Başarılar
-          </TabsTrigger>
-          <TabsTrigger value="statistics" className="data-[state=active]:bg-lilac data-[state=active]:text-white">
-            İstatistikler
-          </TabsTrigger>
-          <TabsTrigger value="favorites" className="data-[state=active]:bg-lilac data-[state=active]:text-white">
-            Favoriler
-          </TabsTrigger>
+          <TabsTrigger value="overview" className="data-[state=active]:bg-lilac data-[state=active]:text-white">Genel Bakış</TabsTrigger>
+          <TabsTrigger value="achievements" className="data-[state=active]:bg-lilac data-[state=active]:text-white">Rozetler</TabsTrigger>
+          <TabsTrigger value="statistics" className="data-[state=active]:bg-lilac data-[state=active]:text-white">İstatistikler</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
             <Card className="border-lilac/20">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Öğrenilen Kelimeler</CardTitle>
@@ -179,192 +289,86 @@ export default function ProfilePage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{userData.stats.wordsLearned}</div>
-                <p className="text-xs text-muted-foreground">Hedef: 2000</p>
-                <Progress
-                  value={(userData.stats.wordsLearned / 2000) * 100}
-                  className="h-2 mt-2 bg-muted"
-                  indicatorClassName="bg-lilac"
-                />
+                <p className="text-xs text-muted-foreground">Toplam puanınız</p>
               </CardContent>
             </Card>
-
             <Card className="border-lilac/20">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Tamamlanan Quizler</CardTitle>
-                <Trophy className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">Başarı Yüzdesi</CardTitle>
+                <CheckCircle className="h-4 w-4 text-muted-foreground" /> {/* CheckCircle burada kullanılıyor */}
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{userData.stats.quizzesCompleted}</div>
-                <p className="text-xs text-muted-foreground">Doğruluk oranı: {userData.stats.correctAnswerRate}</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-lilac/20">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Gramer Konuları</CardTitle>
-                <Edit className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{userData.stats.grammarTopicsCompleted}</div>
-                <p className="text-xs text-muted-foreground">Tamamlanan konular</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-lilac/20">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Toplam Çalışma</CardTitle>
-                <Clock className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{userData.stats.totalStudyTime}</div>
-                <p className="text-xs text-muted-foreground">Son 30 günde</p>
+                <div className="text-2xl font-bold">{userData.stats.correctAnswerRate}</div>
+                <p className="text-xs text-muted-foreground">Genel başarı oranınız</p>
+                <Progress value={userData.successPercentage || 0} className="h-2 mt-2 bg-muted" indicatorClassName="bg-lilac" />
               </CardContent>
             </Card>
           </div>
-
           <Card className="border-lilac/20">
             <CardHeader>
-              <CardTitle>Son Başarılar</CardTitle>
-              <CardDescription>En son kazandığınız başarılar</CardDescription>
+              <CardTitle>Son Kazanılan Rozetler</CardTitle>
+              <CardDescription>En son kazandığınız rozetler ve başarılar</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {userData.achievements.slice(0, 3).map((achievement) => (
-                  <div key={achievement.id} className="flex items-center gap-4 p-2 rounded-lg hover:bg-muted/50">
+                {userData.badges.filter(b => b.isVisible !== false).slice(0, 3).map((badge) => (
+                  <div key={badge.badgeId} className="flex items-center gap-4 p-2 rounded-lg hover:bg-muted/50">
                     <div className="flex items-center justify-center w-10 h-10 rounded-full bg-lilac/10 text-lg">
-                      {achievement.icon}
+                      <img src={badge.iconUrl || '/placeholder.svg'} alt={badge.name} className="h-6 w-6" />
                     </div>
                     <div>
-                      <p className="font-medium">{achievement.title}</p>
-                      <p className="text-sm text-muted-foreground">{achievement.description}</p>
+                      <p className="font-medium">{badge.name}</p>
+                      <p className="text-sm text-muted-foreground">{badge.description || "Bu rozeti kazandınız."}</p>
                     </div>
-                    <div className="ml-auto text-sm text-muted-foreground">{achievement.date}</div>
+                    <div className="ml-auto text-sm text-muted-foreground">
+                      {new Date(badge.earnedAt).toLocaleDateString("tr-TR", { day: 'numeric', month: 'long' })}
+                    </div>
                   </div>
                 ))}
+                {userData.badges.filter(b => b.isVisible !== false).length === 0 && (
+                    <p className="text-sm text-muted-foreground">Henüz görünür bir rozet kazanmadınız.</p>
+                )}
               </div>
             </CardContent>
           </Card>
         </TabsContent>
-
         <TabsContent value="achievements" className="space-y-4">
           <Card className="border-lilac/20">
             <CardHeader>
-              <CardTitle>Tüm Başarılar</CardTitle>
-              <CardDescription>Kazandığınız tüm başarılar</CardDescription>
+              <CardTitle>Tüm Rozetlerim</CardTitle>
+              <CardDescription>Kazandığınız tüm rozetler ve başarılar.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {userData.achievements.map((achievement) => (
-                  <div key={achievement.id} className="flex items-center gap-4 p-2 rounded-lg hover:bg-muted/50">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-lilac/10 text-lg">
-                      {achievement.icon}
-                    </div>
-                    <div>
-                      <p className="font-medium">{achievement.title}</p>
-                      <p className="text-sm text-muted-foreground">{achievement.description}</p>
-                    </div>
-                    <div className="ml-auto text-sm text-muted-foreground">{achievement.date}</div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="statistics" className="space-y-4">
-          <Card className="border-lilac/20">
-            <CardHeader>
-              <CardTitle>Öğrenme İstatistikleri</CardTitle>
-              <CardDescription>Öğrenme yolculuğunuzdaki ilerlemeniz</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-sm font-medium mb-2">Kelime Öğrenme İlerlemesi</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-sm">A1 Seviyesi</span>
-                      <span className="text-sm text-muted-foreground">95%</span>
-                    </div>
-                    <Progress value={95} className="h-2 bg-muted" indicatorClassName="bg-lilac" />
-
-                    <div className="flex justify-between">
-                      <span className="text-sm">A2 Seviyesi</span>
-                      <span className="text-sm text-muted-foreground">82%</span>
-                    </div>
-                    <Progress value={82} className="h-2 bg-muted" indicatorClassName="bg-lilac" />
-
-                    <div className="flex justify-between">
-                      <span className="text-sm">B1 Seviyesi</span>
-                      <span className="text-sm text-muted-foreground">67%</span>
-                    </div>
-                    <Progress value={67} className="h-2 bg-muted" indicatorClassName="bg-lilac" />
-                  </div>
+              {userData.badges.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {userData.badges.map((badge) => (
+                    <Card key={badge.badgeId} className={`border-lilac/20 ${badge.isVisible === false ? 'opacity-50' : ''}`}>
+                      <CardHeader className="items-center text-center">
+                        <img src={badge.iconUrl || '/placeholder.svg'} alt={badge.name} className="h-16 w-16 mx-auto mb-2" />
+                        <CardTitle className="text-md">{badge.name}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="text-center text-sm text-muted-foreground">
+                        <p>{badge.description || "Bu rozeti kazandınız."}</p>
+                        <p className="text-xs mt-1">
+                          Kazanma Tarihi: {new Date(badge.earnedAt).toLocaleDateString("tr-TR")}
+                        </p>
+                        {badge.isVisible === false && <UiBadge variant="secondary" className="mt-2">Gizli</UiBadge>}
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
-
-                <Separator />
-
-                <div>
-                  <h3 className="text-sm font-medium mb-2">Haftalık Çalışma Saatleri</h3>
-                  <div className="h-[150px] flex items-end justify-between">
-                    {["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((day, i) => (
-                      <div key={day} className="flex flex-col items-center gap-2">
-                        <div
-                          className="bg-lilac/80 w-8 rounded-t-md"
-                          style={{ height: `${Math.max(20, Math.random() * 100)}px` }}
-                        ></div>
-                        <span className="text-xs text-muted-foreground">{day}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">Henüz hiç rozet kazanmadınız.</p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
-
-        <TabsContent value="favorites" className="space-y-4">
-          <Card className="border-lilac/20">
-            <CardHeader>
-              <CardTitle>Favori Kelimelerim</CardTitle>
-              <CardDescription>Kaydettiğiniz kelimeler</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[1, 2, 3, 4, 5].map((index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between items-start p-3 border-b border-border last:border-0"
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-lg font-medium">Serendipity</h3>
-                        <Badge variant="outline" className="text-xs">
-                          noun
-                        </Badge>
-                      </div>
-                      <p className="text-muted-foreground">Şans eseri güzel bir şey bulmak</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-lilac hover:bg-lilac/10">
-                        <Volume2 className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-lilac hover:bg-lilac/10">
-                        <Heart className="h-4 w-4 fill-current" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+        <TabsContent value="statistics" className="space-y-4"><Card className="border-lilac/20"><CardHeader><CardTitle>Öğrenme İstatistikleri</CardTitle><CardDescription>Öğrenme yolculuğunuzdaki ilerlemeniz</CardDescription></CardHeader><CardContent><div className="space-y-6"><div><h3 className="text-sm font-medium mb-2">Kelime Öğrenme İlerlemesi (Seviyelere Göre)</h3><div className="space-y-2"><div className="flex justify-between"><span className="text-sm">A1 Seviyesi</span><span className="text-sm text-muted-foreground">N/A</span></div><Progress value={0} className="h-2 bg-muted" indicatorClassName="bg-lilac" /><div className="flex justify-between"><span className="text-sm">A2 Seviyesi</span><span className="text-sm text-muted-foreground">N/A</span></div><Progress value={0} className="h-2 bg-muted" indicatorClassName="bg-lilac" /><div className="flex justify-between"><span className="text-sm">B1 Seviyesi</span><span className="text-sm text-muted-foreground">N/A</span></div><Progress value={0} className="h-2 bg-muted" indicatorClassName="bg-lilac" /></div></div><Separator /><div><h3 className="text-sm font-medium mb-2">Haftalık Çalışma Saatleri (Örnek Veri)</h3><div className="h-[150px] flex items-end justify-between">{["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((day, i) => (<div key={day} className="flex flex-col items-center gap-2"><div className="bg-lilac/80 w-8 rounded-t-md" style={{ height: `${Math.max(20, Math.random() * 100)}px` }}></div><span className="text-xs text-muted-foreground">{day}</span></div>))}</div></div></div></CardContent></Card></TabsContent>
       </Tabs>
 
-      {/* Level Assessment Test Modal */}
       {showLevelTest && (
         <LevelAssessmentTest
-          isFirstTime={false}
+          isFirstTime={!user?.currentLevel} 
           onComplete={handleLevelTestComplete}
           onClose={() => setShowLevelTest(false)}
         />
