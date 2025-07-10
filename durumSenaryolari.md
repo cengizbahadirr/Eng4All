@@ -1,7 +1,7 @@
 
 [MUHAMMET SANLI DURUM SENARYOSU](https://docs.google.com/document/d/1lEkmMEPTS2a_iLtpieqQ6BzQX5cUhSFe/edit)
 
-[UMUT FURKAN BAYRAM DURUM SENARYOSU](https://drive.google.com/file/d/1Zdy7zKfh0Cn-Ek2PtM99hFfc-ZT0uSWL/view?usp=drive_link)
+[UMUT FURKAN BAYRAM DURUM SENARYOSU](https://drive.google.com/file/d/1JGtU5ixbKOmpLN4iuKd5feI9P4_ruAYh/view?usp=drive_link)
 
 [CENGİZ BAHADIR KAYA DURUM SENARYOSU](https://drive.google.com/file/d/1IsdXbt93xwcO1Wb2LCkb_lxcYJeOtjwr/view?usp=drive_link)  
 
