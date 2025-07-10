@@ -4,8 +4,8 @@
 
 21.Kelime tekrar listesi: Kullanıcının önceki çalışmalarına dayalı olarak otomatik veya manuel şekilde girilerek oluşturulabilecek ve kullanıcının tekrar yapmasına olanak sağlayacak liste.
 
-22.Temel dilbilgisi kuralları öğretimi: Hızlı ve pratik şekilde temel gramer öğrenmek için özel alan.
+22.Günün Deyimi / Söz Kalıbı: Kullanıcının her gün yeni bir deyim, atasözü veya söz kalıbı öğrenmesi amacıyla, sistem tarafından rastgele seçilen bir ifadenin göze çarpan bir alanda sunulması.
 
 23.Rastgele kelime getirme: Belirlenen veri havuzu içinden rastgele kelime getirme.
 
-24.Dil değiştirme seçeneği: Uygulama Türkçe veya İngilizce dil seçeneğiyle kullanılabilir.
+24.Kelime Ağı (Eş ve Zıt Anlamlılar): Kullanıcının kelime dağarcığını zenginleştirmek amacıyla, aranan bir kelimeyle ilişkili eş anlamlı, zıt anlamlı gibi diğer kelimelerin bir ağ yapısında sunulması.
