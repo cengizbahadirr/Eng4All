@@ -65,14 +65,14 @@ Aşağıdaki liste, Eng4All platformunda belirlediğimiz gereksinimleri, kısaca
 21. **Kelime Tekrar Listesi (Umut Furkan Bayram)**  
     - Kullanıcının önceki çalışmalarına dayalı olarak otomatik veya manuel şekilde oluşturulan, tekrar yapılabilen kelime listesi.
 
-22. **Temel Dilbilgisi Kuralları Öğretimi (Umut Furkan Bayram)**  
-    - Temel İngilizce dilbilgisi konularının özet ve alıştırmalarla pratik yapılabileceği eğitim alanı.
+22. **Günün Deyimi / Söz Kalıbı (Umut Furkan Bayram)**  
+    - Kullanıcının her gün yeni bir deyim, atasözü veya söz kalıbı öğrenmesi amacıyla, sistem tarafından rastgele seçilen bir ifadenin göze çarpan bir alanda sunulması.
 
 23. **Rastgele Kelime Getirme (Umut Furkan Bayram)**  
     - Belirlenen veri havuzundan rastgele kelimelerin kullanıcıya sunularak günlük kelime pratiği yapılması.
 
-24. **Dil Değiştirme Seçeneği (Umut Furkan Bayram)**  
-    - Uygulama arayüzünün Türkçe, İngilizce gibi farklı diller arasında değiştirilebilmesi.
+24. **Kelime Ağı (Eş ve Zıt Anlamlılar) (Umut Furkan Bayram)**  
+    - Kullanıcının kelime dağarcığını zenginleştirmek amacıyla, aranan bir kelimeyle ilişkili eş anlamlı, zıt anlamlı gibi diğer kelimelerin bir ağ yapısında sunulması.
 
 ---
 
